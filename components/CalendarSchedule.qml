@@ -245,10 +245,9 @@ Item {
                                 }
                                 Item { Layout.fillWidth: true }
                                 Text {
-                                    text: "June 8"
+                                    text: (calendarRoot.processedSchedule[index].length > 0 ? calendarRoot.processedSchedule[index].length : "no") + " event" + (calendarRoot.processedSchedule[index].length > 1 || calendarRoot.processedSchedule[index].length === 0 ? "s" : "")
                                     color: focalisBlack
                                     font.pixelSize: px18High
-                                    font.weight: Font.Bold
                                 }
                             }
 
