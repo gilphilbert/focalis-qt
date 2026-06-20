@@ -13,7 +13,7 @@ Item {
 
     // Holds the master processed calendar array for the UI to read
     property var processedSchedule: [[], [], [], [], [], [], [], []]
-    property var hiddenUsers: ({})
+    property var hiddenUsers: []
 
     // Endpoint of your remote Go microservice
     property string apiEndpoint: "http://localhost:8080/api/calendar/schedule/"
@@ -23,12 +23,6 @@ Item {
     onCalendarViewOffsetWeeksChanged: function() {
         refreshCalendar()
     }
-
-
-    // Fetch data immediately when the component loads
-    //Component.onCompleted: {
-    //    refreshCalendar();
-    //}
 
     function fetchCalendarData(apiUrl) {
         return new Promise(function(resolve, reject) {
@@ -149,6 +143,28 @@ Item {
                     rightPadding: px20Wide
                 }
 
+                Repeater {
+                    model: Object.keys(userList)
+                    NameTag {
+                        username: userList[modelData].username
+                        tagColor: userList[modelData].color
+                        TapHandler {
+                            onTapped: {
+                                if (hiddenUsers.indexOf(modelData) >= 0) {
+                                    hiddenUsers.splice(hiddenUsers.indexOf(modelData), 1)
+                                } else {
+                                    hiddenUsers.push(modelData)
+                                }
+                                hiddenUsersChanged()
+                            }
+                        }
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
                 Rectangle {
                     Layout.preferredHeight: px50High
                     Layout.preferredWidth: 171 / 1920 * appWindow.width
@@ -183,8 +199,6 @@ Item {
                         }
                     }
                 }
-
-                Item { Layout.fillWidth: true }
 
                 Rectangle {
                     Layout.preferredHeight: px50High
@@ -261,11 +275,12 @@ Item {
                                 model: calendarRoot.processedSchedule[index]
 
                                 delegate: Rectangle {
+                                    id: eventItem
                                     width: eventListView.width
                                     height: 140 / 1920 * appWindow.height
                                     radius: px10High
 
-                                    visible: !calendarRoot.hiddenUsers[modelData.assignedUser]
+                                    visible: !calendarRoot.hiddenUsers.includes(modelData.assignedUser) //!calendarRoot.hiddenUsers[modelData.assignedUser]
                                     color: userList[modelData.assignedUser].color
                                     opacity: modelData.busy ? 1.0 : 0.6
 
@@ -292,7 +307,8 @@ Item {
                                     }
                                     TapHandler {
                                         onTapped: {
-                                            eventDetailPopup.openEvent(modelData)
+                                            //eventDetailPopup.openEvent(modelData)
+                                            eventDetailPopup.showNear(eventItem, modelData)
                                         }
                                     }
                                 }

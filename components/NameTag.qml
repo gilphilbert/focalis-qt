@@ -2,40 +2,41 @@ import QtQuick
 import QtQuick.Controls
 
 Label {
-    property string name
+    property string username
     property string tagColor
 
-    text: name
+    text: username
     font.pixelSize: 20
     color: shadeColor(tagColor, -60)
     topPadding: font.pixelSize / 2
     bottomPadding: topPadding
     leftPadding: (font.pixelSize * 2) + (font.pixelSize / 3)
     rightPadding: font.pixelSize / 1.6
+
     background: Rectangle {
         color: tagColor.substring(0, 7)
         radius: 100
     }
+
     Rectangle {
         id: circleBg
         color: shadeColor(tagColor, -20)
         radius: 100
         height: parent.height * 0.8
         width: height
-        //opacity: 0.15
         anchors.left: parent.left
         anchors.leftMargin: parent.height * 0.1
         anchors.verticalCenter: parent.verticalCenter
     }
+
     Text {
-        text: name.substring(0, 1)
+        text: username.substring(0, 1).toUpperCase()
         font.pixelSize: 20
         color: "white"
         anchors.centerIn: circleBg
     }
 
     function shadeColor(color, percent) {
-
         var R = parseInt(color.substring(1,3),16);
         var G = parseInt(color.substring(3,5),16);
         var B = parseInt(color.substring(5,7),16);

@@ -28,13 +28,13 @@ Item {
             target: addEventBackground
             property: "opacity"
             to: 1
-            duration: 300
+            duration: 200
             easing.type: Easing.InOutQuad
         }
         NumberAnimation { target: formContainer
             property: "y"
             to: addPopupRoot.height / 2 - formContainer.height / 2
-            duration: 300
+            duration: 200
             easing.type: Easing.InOutQuad
         }
         onRunningChanged: {
@@ -49,14 +49,14 @@ Item {
             target: addEventBackground
             property: "opacity"
             to: 0
-            duration: 300
+            duration: 200
             easing.type: Easing.InOutQuad
         }
         NumberAnimation {
             target: formContainer
             property: "y"
             to: parent.height
-            duration: 300
+            duration: 200
             easing.type: Easing.InOutQuad
         }
         onRunningChanged: {
@@ -128,9 +128,9 @@ Item {
     // Wide Layout Window Container (Optimized for 1080p width)
     Rectangle {
         id: formContainer
-        width: 900 / 1920 * appWindow.width
+        width: 600 / 1920 * appWindow.width
         height: 680 / 1080 * appWindow.height
-        radius: px32High
+        radius: px24High
         color: focalisWhite
         //anchors.centerIn: parent
         x: parent.width / 2 - width / 2
@@ -175,12 +175,16 @@ Item {
                         }
                         RowLayout {
                             spacing: px10High
-                            Repeater {
+                            GridView {
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+
                                 model: Object.keys(userList)
-                                Button {
+
+                                delegate: Button {
                                     id: uBtn
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 46 / 1080 * appWindow.height
+                                    //width: parent.width / 5
+                                    //height: 46 / 1080 * appWindow.height
                                     checkable: true
                                     checked: addPopupRoot.selectedUser === modelData
                                     background: Rectangle {
@@ -194,6 +198,10 @@ Item {
                                         font.bold: true
                                         horizontalAlignment: Text.AlignHCenter
                                         verticalAlignment: Text.AlignVCenter
+                                        topPadding: px8High
+                                        bottomPadding: px8High
+                                        leftPadding: px10High
+                                        rightPadding: px10High
                                     }
                                     onClicked: addPopupRoot.selectedUser = modelData
                                 }
@@ -304,64 +312,54 @@ Item {
                     }
 
                     // Modern Custom Interactive Toggle Switch
-                RowLayout {
-                    spacing: px8Wide
-                    Text {
-                        text: "All Day Event"
-                        font.pixelSize: px14High
-                        font.weight: Font.Bold
-                        color: focalisMidGray
+                    RowLayout {
+                        spacing: px8Wide
+                        Text {
+                            text: "All Day Event"
+                            font.pixelSize: px14High
+                            font.weight: Font.Bold
+                            color: focalisMidGray
+                        }
+                        Switch {
+                            id: allDaySwitch
+                            checked: addPopupRoot.isAllDay
+                            onCheckedChanged: addPopupRoot.isAllDay = checked
+                        }
                     }
-                    Switch {
-                        id: allDaySwitch
-                        checked: addPopupRoot.isAllDay
-                        onCheckedChanged: addPopupRoot.isAllDay = checked
-                    }
-                }
 
                     // D. Location Field & Description Text Space Frame
-                    RowLayout {
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: px16Wide
-                        ColumnLayout {
+                        spacing: px6High
+                        TextField {
+                            id: locationInput
+                            placeholderText: "Add location"
+                            font.pixelSize: px16High
                             Layout.fillWidth: true
-                            spacing: px6High
-                            TextField {
-                                id: locationInput
-                                placeholderText: "Add location"
-                                font.pixelSize: px16High
-                                Layout.fillWidth: true
-                                padding: px12High
-                                background: Rectangle {
-                                    radius: px12High
-                                    border.color: focalisLightishGray
-                                }
-                            }
-                        }
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: px6High
-                            TextField {
-                                id: descriptionInput
-                                placeholderText: "Add description"
-                                font.pixelSize: px16High
-                                Layout.fillWidth: true
-                                padding: px12High
-                                background: Rectangle {
-                                    radius: px12High
-                                    border.color: focalisLightishGray
-                                }
+                            padding: px12High
+                            background: Rectangle {
+                                radius: px12High
+                                border.color: focalisLightishGray
                             }
                         }
                     }
-                }
-            }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: px6High
+                        TextField {
+                            id: descriptionInput
+                            placeholderText: "Add description"
+                            font.pixelSize: px16High
+                            Layout.fillWidth: true
+                            padding: px12High
+                            background: Rectangle {
+                                radius: px12High
+                                border.color: focalisLightishGray
+                            }
+                        }
+                    }
 
-            // Bottom Separator Line
-            Rectangle {
-                Layout.fillWidth: true
-                height: 1
-                color: focalisLightishGray
+                }
             }
 
             // Action Execution Buttons Row

@@ -292,6 +292,7 @@ Window {
 
     onUserListChanged: function () {
         //process users? Probably not, but...
+        console.log(JSON.stringify(userList))
         if (Object.keys(userList).length > 0) {
             calScheduleView.refreshCalendar()
         }
