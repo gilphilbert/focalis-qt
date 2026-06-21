@@ -13,8 +13,8 @@ Item {
     property date selectedDate: new Date()
     property date viewDate: new Date()
     property string selectedUser: ""
-    property string selectedStartTime: "12:00"
-    property string selectedEndTime: "13:00"
+    //property string selectedStartTime: "12:00"
+    //property string selectedEndTime: "13:00"
     property bool isAllDay: false // Controls field locking states
 
     readonly property var months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -24,19 +24,10 @@ Item {
     ParallelAnimation {
         id: popupOpenAnimate
         running: false
-        NumberAnimation {
-            target: addEventBackground
-            property: "opacity"
-            to: 1
-            duration: 200
-            easing.type: Easing.InOutQuad
-        }
-        NumberAnimation { target: formContainer
-            property: "y"
-            to: addPopupRoot.height / 2 - formContainer.height / 2
-            duration: 200
-            easing.type: Easing.InOutQuad
-        }
+
+        NumberAnimation { target: formContainer; property: "scale"; from: 0; to: 1; duration: 200; easing.type: Easing.OutBack }
+        NumberAnimation { target: addEventBackground; property: "opacity"; from:0 ; to: 1; duration: 200; easing.type: Easing.InOutQuad }
+
         onRunningChanged: {
             if (running) addPopupRoot.visible = true
         }
@@ -45,20 +36,10 @@ Item {
     ParallelAnimation {
         id: popupCloseAnimate
         running: false
-        NumberAnimation {
-            target: addEventBackground
-            property: "opacity"
-            to: 0
-            duration: 200
-            easing.type: Easing.InOutQuad
-        }
-        NumberAnimation {
-            target: formContainer
-            property: "y"
-            to: parent.height
-            duration: 200
-            easing.type: Easing.InOutQuad
-        }
+
+        NumberAnimation { target: formContainer; property: "scale"; from: 1; to: 0; duration: 200; easing.type: Easing.InQuad }
+        NumberAnimation { target: addEventBackground; property: "opacity"; from: 1; to: 0; duration: 200; easing.type: Easing.InOutQuad }
+
         onRunningChanged: {
             if (!running) addPopupRoot.visible = false
         }
@@ -71,8 +52,8 @@ Item {
         selectedUser = userList[Object.keys(userList)[0]].id
         selectedDate = new Date()
         viewDate = new Date()
-        selectedStartTime = "12:00"
-        selectedEndTime = "13:00"
+        //selectedStartTime = "12:00"
+        //selectedEndTime = "13:00"
         isAllDay = false
         //visible = true
         popupOpenAnimate.start()
@@ -83,7 +64,14 @@ Item {
     }
 
     property date startDate: new Date()
+    property int startH: 9
+    property int startM: 0
+    property string startP: "AM"
+
     property date endDate: new Date()
+    property int endH: 5
+    property int endM: 0
+    property string endP: "PM"
 
     // Helper to open the picker
     function showPicker(isStart) {
@@ -113,6 +101,21 @@ Item {
 
     Loader { id: pickerLoader }
 
+    TimePickerPopup {
+        id: sharedTimePicker
+
+        onAccepted: (h, m, p) => {
+            // Logic: Use 'caller' to decide where to put the data
+            if (caller === startTimeBtn) {
+                startH = h; startM = m; startP = p
+                console.log("Updated Start Time")
+            } else if (caller === endTimeBtn) {
+                endH = h; endM = m; endP = p
+                console.log("Updated End Time")
+            }
+        }
+    }
+
     // Semi-transparent dimming overlay mask
     Rectangle {
         anchors.fill: parent
@@ -134,7 +137,7 @@ Item {
         color: focalisWhite
         //anchors.centerIn: parent
         x: parent.width / 2 - width / 2
-        y: parent.height
+        y: (parent.height - height) / 2
 
         TapHandler {
             gesturePolicy: TapHandler.ReleaseWithinBounds
@@ -183,8 +186,6 @@ Item {
 
                                 delegate: Button {
                                     id: uBtn
-                                    //width: parent.width / 5
-                                    //height: 46 / 1080 * appWindow.height
                                     checkable: true
                                     checked: addPopupRoot.selectedUser === modelData
                                     background: Rectangle {
@@ -250,12 +251,12 @@ Item {
                         // Start & End ComboBox Array Container Row
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: px16Wide
+                            spacing: px28Wide
                             // Smoothly fade out selectors visually when locked out
                             opacity: addPopupRoot.isAllDay ? 0.3 : 1.0
                             Behavior on opacity { NumberAnimation { duration: 200 } }
 
-                            // Start Date Input
+                            // Start Date Input - actually a button, styled as an input box
                             Button {
                                 text: startDate.toLocaleDateString()
                                 onClicked: showPicker(true)
@@ -277,11 +278,38 @@ Item {
                                     radius: px12High
                                 }
                             }
+
+                            Button {
+                                id: startTimeBtn
+                                text: "Start: " + startH + ":" + startM.toString().padStart(2, '0') + " " + startP
+                                padding: px14High
+
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: flocalisDarkGray // Set your desired color here
+                                    horizontalAlignment: Text.AlignLeft
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                }
+
+                                background: Rectangle {
+                                    width: 200
+                                    color: focalisWhite
+                                    border.width: 1
+                                    border.color: focalisLightishGray
+                                    radius: px12High
+                                }
+
+                                onClicked: {
+                                    sharedTimePicker.isPriorDay = true
+                                    sharedTimePicker.showNear(startTimeBtn)
+                                }
+                            }
                         }
 
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: px16Wide
+                            spacing: px28Wide
                             // Smoothly fade out selectors visually when locked out
                             opacity: addPopupRoot.isAllDay ? 0.3 : 1.0
                             Behavior on opacity { NumberAnimation { duration: 200 } }
@@ -306,6 +334,41 @@ Item {
                                     border.width: 1
                                     border.color: focalisLightishGray
                                     radius: px12High
+                                }
+                            }
+
+                            Button {
+                                id: endTimeBtn
+                                text: "End: " + endH + ":" + endM.toString().padStart(2, '0') + " " + endP
+                                padding: px14High
+
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: flocalisDarkGray // Set your desired color here
+                                    horizontalAlignment: Text.AlignLeft
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                }
+
+                                background: Rectangle {
+                                    width: 200
+                                    color: focalisWhite
+                                    border.width: 1
+                                    border.color: focalisLightishGray
+                                    radius: px12High
+                                }
+
+                                onClicked: {
+                                    // 1. Check if the start date day is strictly before the end date day
+                                    sharedTimePicker.isPriorDay = (startDate.getTime() < endDate.getTime() &&
+                                                                   startDate.toDateString() !== endDate.toDateString())
+
+                                    // 2. Feed the actual time limits
+                                    sharedTimePicker.minHour = startH
+                                    sharedTimePicker.minMinute = startM
+                                    sharedTimePicker.minPeriod = startP
+
+                                    sharedTimePicker.showNear(endTimeBtn)
                                 }
                             }
                         }
@@ -408,23 +471,28 @@ Item {
 
                         if (addPopupRoot.isAllDay) {
                             // All day events anchor down across a flat 24-hour cycle frame
-                            var sDate = new Date(addPopupRoot.selectedDate.getTime())
+                            var sDate = startDate//new Date(addPopupRoot.selectedDate.getTime())
                             sDate.setHours(0, 0, 0, 0)
                             startTimestamp = Math.floor(sDate.getTime() / 1000)
 
-                            var eDate = new Date(addPopupRoot.selectedDate.getTime())
+                            var eDate = endDate//new Date(addPopupRoot.selectedDate.getTime())
                             eDate.setHours(23, 59, 59, 0)
                             endTimestamp = Math.floor(eDate.getTime() / 1000)
                         } else {
                             // Extract the separate start and end timestamps explicitly
-                            var startParts = addPopupRoot.selectedStartTime.split(":")
-                            var targetStartDate = new Date(addPopupRoot.selectedDate.getTime())
-                            targetStartDate.setHours(parseInt(startParts[0]), parseInt(startParts[1]), 0, 0)
+                            //var startParts = addPopupRoot.selectedStartTime.split(":")
+                            //var targetStartDate = new Date(addPopupRoot.selectedDate.getTime())
+                            //targetStartDate.setHours(parseInt(startParts[0]), parseInt(startParts[1]), 0, 0)
+                            //startTimestamp = Math.floor(targetStartDate.getTime() / 1000)
+                            var targetStartDate = startDate
+                            targetStartDate.setHours(startH + (startP === "PM" ? 12 : 0), startM, 0, 0)
                             startTimestamp = Math.floor(targetStartDate.getTime() / 1000)
 
-                            var endParts = addPopupRoot.selectedEndTime.split(":")
+                            //var endParts = addPopupRoot.selectedEndTime.split(":")
                             var targetEndDate = new Date(addPopupRoot.selectedDate.getTime())
-                            targetEndDate.setHours(parseInt(endParts[0]), parseInt(endParts[1]), 0, 0)
+                            //targetEndDate.setHours(parseInt(endParts[0]), parseInt(endParts[1]), 0, 0)
+                            //endTimestamp = Math.floor(targetEndDate.getTime() / 1000)
+                            targetEndDate.setHours(endH + (endP === "PM" ? 12 : 0), endM, 0, 0)
                             endTimestamp = Math.floor(targetEndDate.getTime() / 1000)
                         }
                        //var startUnix = Math.floor(startDateTimePicker.selectedDate.getTime() / 1000)

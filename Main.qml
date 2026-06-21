@@ -108,6 +108,9 @@ Window {
     property real px16Wide: 16 / 1920 * appWindow.width
     property real px20Wide: 20 / 1920 * appWindow.width
     property real px24Wide: 24 / 1920 * appWindow.width
+    property real px26Wide: 26 / 1920 * appWindow.width
+    property real px28Wide: 28 / 1920 * appWindow.width
+    property real px30Wide: 30 / 1920 * appWindow.width
     property real px40Wide: 40 / 1920 * appWindow.width
     property real px58Wide: 58 / 1920 * appWindow.width
 

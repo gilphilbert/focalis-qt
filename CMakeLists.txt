@@ -37,6 +37,7 @@ qt_add_qml_module(apphomestead
     SOURCES sseclient.cpp
     QML_FILES components/Toast.qml
     QML_FILES components/DatePicker.qml
+    QML_FILES components/TimePickerPopup.qml
 )
 
 qt_add_resources(apphomestead "font_resources"
