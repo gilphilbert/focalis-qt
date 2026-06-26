@@ -74,7 +74,6 @@ set_target_properties(apphomestead PROPERTIES
 
 target_link_libraries(apphomestead
     PRIVATE Qt6::Quick
-    ${LibIcal_LIBRARIES}
 )
 
 include(GNUInstallDirs)
