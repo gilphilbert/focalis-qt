@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import QtQuick.Effects
 
 Item {
     id: btnRoot
@@ -43,17 +43,11 @@ Item {
                 sourceSize.height: 32
                 sourceSize.width: 32
                 source: icon
-                visible: false
-            }
-
-            ColorOverlay {
-                x: btnImg.x
-                y: btnImg.y
-                Layout.preferredHeight: btnImg.height
-                Layout.preferredWidth: btnImg.width
-                source: btnImg
-                color: btnRoot.isActive ? focalisWhite : focalisSkyBlue
-                visible: icon != ""
+                layer.enabled: true
+                layer.effect: MultiEffect {
+                    colorization: 1.0
+                    colorizationColor: btnRoot.isActive ? focalisWhite : focalisSkyBlue
+                }
             }
         }
     }

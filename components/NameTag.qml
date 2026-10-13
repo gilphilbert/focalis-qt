@@ -7,11 +7,12 @@ Label {
 
     text: username
     font.pixelSize: 20
-    color: shadeColor(tagColor, -60)
+    color: shadeColor(tagColor, -45)
     topPadding: font.pixelSize / 2
     bottomPadding: topPadding
     leftPadding: (font.pixelSize * 2) + (font.pixelSize / 3)
     rightPadding: font.pixelSize / 1.6
+    font.weight: 600
 
     background: Rectangle {
         color: tagColor.substring(0, 7)
@@ -32,7 +33,8 @@ Label {
     Text {
         text: username.substring(0, 1).toUpperCase()
         font.pixelSize: 20
-        color: "white"
+        color: focalisWhite
+        font.weight: 600
         anchors.centerIn: circleBg
     }
 

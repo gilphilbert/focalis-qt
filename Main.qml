@@ -5,7 +5,6 @@ import QtQuick.Layouts
 
 
 
-import "./screens" as Screens
 import "./components"
 
 import Focalis.Core 1.0 // Import your native C++ module
@@ -62,9 +61,9 @@ Window {
     width: 1920
     height: 1080
     visible: true
-    title: "Family Command Center"
+    title: "Focalis"
 
-    property string focalisBlack: "#0e172a" //0f172a
+    property string focalisBlack: "#0f172a"
     property string focalisWhite: "#ffffff"
     property string focalisSkyBlue: "#0EA5E9"
     property string focalisGreen: "#a4f489"
@@ -76,13 +75,16 @@ Window {
     property string focalisGreenOverlay: "#000000"
     property string focalisRedOverlay: "#FFFFFF"
 
-    property string focalisLightGray: "#f1f4f6"
+    property string focalisLightGray: "#f1f4f6"//"#"
     property string focalisLightishGray: "#E2E8F0"
     property string focalisMidGray: "#94A3B8"
     property string flocalisDarkGray: "#334155"
 
     property string focalisPopupBackground: "#AA0F172A"
 
+    property string baseURL: "http://localhost:8080/api"//"http://192.168.50.11:8080/api"
+
+    property real px4High: 4 / 1080 * appWindow.height
     property real px6High: 6 / 1080 * appWindow.height
     property real px8High: 8 / 1080 * appWindow.height
     property real px10High: 10 / 1080 * appWindow.height
@@ -101,6 +103,7 @@ Window {
     property real px40High: 40 / 1080 * appWindow.height
     property real px48High: 48 / 1080 * appWindow.height
     property real px50High: 50 / 1080 * appWindow.height
+    property real px64High: 64 / 1080 * appWindow.height
 
     property real px5Wide: 5 / 1920 * appWindow.width
     property real px8Wide: 8 / 1920 * appWindow.width
@@ -141,7 +144,7 @@ Window {
                 Rectangle {
                     width: 72
                     height: 72
-                    radius: 20
+                    radius: 14
                     color: focalisSkyBlue
                     Layout.alignment: Qt.AlignHCenter
                     Text {
@@ -164,6 +167,7 @@ Window {
                         onClicked: featureStack.currentIndex = 0
                     }
 
+                    /*
                     NavButton {
                         icon: "qrc:images/icons/chores.svg"
                         isActive: featureStack.currentIndex === 1
@@ -181,6 +185,7 @@ Window {
                         isActive: featureStack.currentIndex === 3
                         onClicked: featureStack.currentIndex = 3
                     }
+                    */
 
                     NavButton {
                         icon: "qrc:images/icons/settings.svg"
@@ -278,7 +283,7 @@ Window {
 
     Component.onCompleted: function () {
         //fetch users from the API
-        fetchFromAPI("http://localhost:8080/api/users")
+        fetchFromAPI(baseURL + "/users")
         .then(data => {
             //console.info(JSON.stringify(data))
             //userList = data
@@ -339,9 +344,9 @@ Window {
 
         z: 99
 
-        x: (Window.width / 2) - (width / 2)
-        y: active ? (Window.height - height) : Window.height
-        width: parent.width * 0.4
+        x: (appWindow.width / 2) - (width / 2)
+        y: active ? (appWindow.height - height) : appWindow.height
+        width: appWindow.width * 0.4
 
         Behavior on y {
             NumberAnimation {
@@ -351,9 +356,13 @@ Window {
         }
     }
 
+    Daydream {
+        id: dayDream
+    }
+
     SSEClient {
         id: eventStream
-        serverUrl: "http://localhost:8080/api/events"
+        serverUrl: baseURL + "/events"
         active: true
 
         onChoreCompleted: (data) => {
@@ -364,6 +373,40 @@ Window {
         }
         onCalendarChanged: (data) => {
             calScheduleView.refreshCalendar()
+        }
+    }
+
+    property bool is60SecIdle: false
+    property bool is5MinIdle: false
+    Connections {
+        target: InputFilter
+
+        function onLastInputTimeChanged() {
+            console.info("Activity detected! Touch/Click recorded at:", InputFilter.lastInputTime)
+            is60SecIdle = false
+            is5MinIdle = false
+        }
+    }
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: {
+            let idleSeconds = (Date.now() - InputFilter.lastInputTime) / 1000
+
+            // 60-second threshold
+            if (idleSeconds >= 60 && !is60SecIdle) {
+                is60SecIdle = true
+                console.info("Idle for 60 seconds!")
+                dayDream.open()
+            }
+
+            // 5-minute (300-second) threshold
+            if (idleSeconds >= 300 && !is5MinIdle) {
+                is5MinIdle = true
+                console.info("Idle for 5 minutes!")
+                console.info("Turn off display")
+            }
         }
     }
 }

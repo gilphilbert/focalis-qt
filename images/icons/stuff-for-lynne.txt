@@ -1,0 +1,75 @@
+Nearest mains drainage
+  > where are the nearest mains drainage
+  > Add extra addresses, put extra information to add on
+
+Request
+-------
+> Add a new image to an existing search (done)
+> Extra waste and extra clean (can't do more than four!) > -- weird, check that! (check, should be good)
+
+Pali sent stuff all in one box
+> 
+
+Job #, date, image and
+  > 
+  
+  
+Keep emails and attach them to the body
+  "Sent" mail option > create new database if needed
+  
+Nice to know how many searches today (I know I did x number today)
+Nice to know how many searches + uninvoiced + total
+1st to the 
+
+Now only do Thames
+> Used to have Affinity
+
+Canned email and send invoices
+
+Edit a search that's been invoiced (but don't allow deleting it!)
+
+Appointment on the Friday
+Work will come back Monday morning
+
+Add a search but not add the images
+  > Add them later
+
+On the wording, they used to tell you if it's not Thames - but they don't do that
+
+> Please note that clean water doesn't come under Thames
+Sometimes there's a guy called Glyn
+  > LAS, where all the searches go in
+Sometimes need to CC glyn
+  > Optional CC
+
+
+
+CREATE TABLE `sent` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `search` int(11) NOT NULL REFERENCES search(id),
+  `body` varchar(1000) DEFAULT NULL,
+  `subject` varchar(256) DEFAULT NULL,
+  contacts JSON
+);
+
+update search set emails = JSON_OBJECT(
+'body':'this is only a test email',
+'subject':'test subject',
+'to':[{'name':'Phill','email':'gil.philbert@gmail.com'}],
+'cc':[{'name':'Phill Work','email':'phillg@google.com'}]},
+'sent_at':UTC_TIMESTAMP()
+) where id = 13207;
+
+UPDATE search 
+SET emails = JSON_ARRAY(JSON_OBJECT(
+    'body', 'this is only a test email',
+    'subject', 'test subject',
+    'to', JSON_ARRAY(
+        JSON_OBJECT('name', 'Phill', 'email', 'gil.philbert@gmail.com')
+    ),
+    'cc', JSON_ARRAY(
+        JSON_OBJECT('name', 'Phill Work', 'email', 'phillg@google.com')
+    ),
+    'sent_at', UTC_TIMESTAMP()
+))
+WHERE id = 13207;

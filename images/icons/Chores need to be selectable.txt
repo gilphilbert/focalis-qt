@@ -1,0 +1,48 @@
+Chores need to be selectable by DOW
+When a person is clicked on, we should see their lifetime points - anything else? Is that useful?
+Should be able to delete prizes
+Should be able to upload an image to go with a prize
+
+Add toothbrushing overview to the home page
+Click on a calendar entry to view more details (attendees, etc.)
+Use more vertical space - we have the entire screen to use, make sure it's used so the elements can be larger
+
+> Support CalDav for the calendar entries
+
+
+Chores:
+> No points for parents!
+> Lifetime points achieved
+> List of recent prizes claimed (last 90 days?)
+> Change the boxes for each person to have the background set to a 10% tint of their person color. Remove the borders around the boxes
+
+
+
+Move configuration to a separate portal?
+For later: Create a tasks view - things that need to be done, but not chores?
+
+
+
+
+On initial setup and when changing the location in settings, use validation for location - as the user starts typing, autofill with a valid location
+
+Throughout the UI, change the following colors:
+replace --color-indigo-950 / oklch(25.7% 0.09 281.288) with #0F172A
+replace --color-indigo-600 / oklch(51.1% 0.262 276.966) with #0EA5E9
+Make sure the fonts are at least 13px or equivalent
+
+Calendar:
+Change the text "Add Agenda Calendar Entry" to "New event"
+Change the text "Submit event" > "Add event"
+Remove location from agenda view
+When you click on an event, the first popup should show the event details with a button to edit the event. Clicking that button should make it possible to edit the event details
+
+Chores:
+When adding a new chore, put the "Assign to" box above the points value
+There should be a separate tab to manage chores (create / edit / assign) to keep the current "outstanding chores" tab complete
+Split "Prizes" into a separate menu item on the left navbar. Include a view where people in the family can view how many points they have.
+
+Remove the clock icon in the top right and replace with an icon that represents the current weather
+Clicking on the current day in the top right should open a popup with an hourly weather forecast for the current day
+
+

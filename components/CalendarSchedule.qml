@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt5Compat.GraphicalEffects
+import QtQuick.Effects
 
 Item {
 
@@ -16,7 +16,7 @@ Item {
     property var hiddenUsers: []
 
     // Endpoint of your remote Go microservice
-    property string apiEndpoint: "http://localhost:8080/api/calendar/schedule/"
+    property string apiEndpoint: baseURL + "/calendar/events/"
 
     property int calendarViewOffsetWeeks: 0
 
@@ -72,19 +72,22 @@ Item {
             for (var j = 0; j < payload[i]["Events"].length; j++) {
                 var event = payload[i]["Events"][j]
 
-                var eventDate = new Date(event.Start * 1000);
-                var formattedTime = eventDate.toLocaleTimeString(Qt.locale(), "h:mm AP");
+                var eventDate = new Date(event.start * 1000);
+                var formattedTime = eventDate.toLocaleTimeString(Qt.locale(), "h:mm AP")
 
                 tempSchedule[i].push({
-                    "id": event.ID,
-                    "title": event.Summary,
-                    "user": event.UserId,
-                    "timeString": event.AllDay ? "All Day" : formattedTime,
-                    "assignedUser": event.UserId,
-                    "busy": event.Busy,
-                    "attendees": event.Attendees,
-                    "location": event.Location,
-                    "description": event.Description
+                    "id": event.id,
+                    "all_day": event.all_day,
+                    "title": event.summary,
+                    "user": event.user_id,
+                    "timeString": event.all_day ? "All Day" : formattedTime,
+                    "start": event.start,
+                    "end": event.end,
+                    "assignedUser": event.user_id,
+                    "busy": event.busy,
+                    "attendees": event.attendees,
+                    "location": event.location,
+                    "description": event.description
                 });
             }
         }
@@ -116,7 +119,6 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         color: focalisWhite
 
-
         //don't ask why, but the relativeHeight / relativeWidth functions don't work here. QML is weird.
         ColumnLayout {
             anchors.fill: parent
@@ -129,17 +131,17 @@ Item {
                     source: "qrc:images/icons/calendar.svg"
                     height: px20High
                     width: height
-                    ColorOverlay {
-                        anchors.fill: parent
-                        source: parent
-                        color: focalisSkyBlue
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        colorization: 1.0
+                        colorizationColor: focalisSkyBlue
                     }
                 }
                 Text {
                     text: "Family Agenda"
-                    font.pixelSize: px22High
-                    font.weight: 500
+                    font.pixelSize: px20High
                     color: focalisBlack
+                    font.weight: 600
                     rightPadding: px20Wide
                 }
 
@@ -147,7 +149,7 @@ Item {
                     model: Object.keys(userList)
                     NameTag {
                         username: userList[modelData].username
-                        tagColor: userList[modelData].color
+                        tagColor: hiddenUsers.indexOf(modelData) >= 0 ? focalisLightishGray : userList[modelData].color
                         TapHandler {
                             onTapped: {
                                 if (hiddenUsers.indexOf(modelData) >= 0) {
@@ -280,7 +282,8 @@ Item {
                                     height: 140 / 1920 * appWindow.height
                                     radius: px10High
 
-                                    visible: !calendarRoot.hiddenUsers.includes(modelData.assignedUser) //!calendarRoot.hiddenUsers[modelData.assignedUser]
+                                    property bool hideMyItem: calendarRoot.hiddenUsers.includes(modelData.assignedUser)
+
                                     color: userList[modelData.assignedUser].color
                                     opacity: modelData.busy ? 1.0 : 0.6
 
@@ -307,10 +310,60 @@ Item {
                                     }
                                     TapHandler {
                                         onTapped: {
-                                            //eventDetailPopup.openEvent(modelData)
                                             eventDetailPopup.showNear(eventItem, modelData)
                                         }
                                     }
+                                    // Define states
+                                    states: [
+                                        State {
+                                            name: "visible"
+                                            when: !hideMyItem
+                                            PropertyChanges { target: eventItem; height: 140 / 1920 * appWindow.height }
+                                            PropertyChanges { target: eventItem; visible: true }
+                                        },
+                                        State {
+                                            name: "invisible"
+                                            when: hideMyItem
+                                            PropertyChanges { target: eventItem; height: -eventListView.spacing }
+                                            // Do not set visible here directly in the state if using SequentialAnimation
+                                        }
+                                    ]
+
+                                    // Define the transition
+                                    transitions: [
+                                        Transition {
+                                            from: "visible"
+                                            to: "invisible"
+                                            SequentialAnimation {
+                                                NumberAnimation {
+                                                    property: "height"
+                                                    duration: 200
+                                                    easing.type: Easing.InOutQuad
+                                                }
+                                                PropertyAction {
+                                                    target: eventItem
+                                                    property: "visible"
+                                                    value: false
+                                                }
+                                            }
+                                        },
+                                        Transition {
+                                            from: "invisible"
+                                            to: "visible"
+                                            SequentialAnimation {
+                                                PropertyAction {
+                                                    target: eventItem
+                                                    property: "visible"
+                                                    value: true
+                                                }
+                                                NumberAnimation {
+                                                    property: "height"
+                                                    duration: 200
+                                                    easing.type: Easing.InOutQuad
+                                                }
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         }

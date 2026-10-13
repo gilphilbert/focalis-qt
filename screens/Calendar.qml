@@ -105,7 +105,7 @@ Rectangle {
                 model: calendarRoot.calendars
                 Components.NameTag {
                     required property var modelData
-                    name: modelData.DisplayName
+                    username: modelData.DisplayName
                     tagColor: modelData.Color
                 }
             }

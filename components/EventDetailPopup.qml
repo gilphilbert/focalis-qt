@@ -35,6 +35,7 @@ Popup {
         startX = pos.x
         startY = pos.y
 
+        event = inData
         parseData(inData)
         open()
     }
@@ -64,6 +65,7 @@ Popup {
 
 
     // Data fields mapped directly from your JSON payload structure
+    property var event: ({})
     property string summary: ""
     property string user: ""
     property string username: ""
@@ -188,6 +190,22 @@ Popup {
                             }
                         }
                     }
+                }
+            }
+
+            Button {
+                text: "Edit"
+                onClicked: {
+                    addEventPopup.openNewEvent(event)
+                    close()
+                }
+            }
+
+            Button {
+                text: "Delete"
+                onClicked: {
+                    addEventPopup.openNewEvent(event)
+                    close()
                 }
             }
         }
